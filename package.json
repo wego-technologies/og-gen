@@ -9,6 +9,7 @@
     "express": "^4.17.1"
   },
   "scripts": {
-    "build": "node index"
+    "build": "node index",
+    "now-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/ && npm run build"
   }
 }
