@@ -1,4 +1,3 @@
-chmod -R 777 ../node_modules
 wget https://zlib.net/fossils/zlib-1.2.9.tar.gz
 tar -xf zlib-1.2.9.tar.gz
 cd zlib-1.2.9
