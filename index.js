@@ -32,6 +32,10 @@ const publicMovement = {
     }
 }
 
+app.get('/', async (req, res) => {
+    res.end('<h1>Wego OpenGraph Generator</h1>');
+});
+
 app.get('/public-movement', async (req, res) => {
     const img = Buffer.from(image, 'base64');
 
