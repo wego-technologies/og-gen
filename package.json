@@ -9,7 +9,7 @@
     "express": "^4.17.1"
   },
   "scripts": {
-    "vercel-build": "yum install libuuid-devel libmount-devel zlib && cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/",
-    "build": "node index"
+    "pre-build": "yum install libuuid-devel libmount-devel zlib && cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/",
+    "build": "npm run pre-build && node index.js"
   }
 }
