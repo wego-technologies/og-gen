@@ -33,8 +33,8 @@ const publicMovement = {
 }
 
 // Register fonts
-registerFont(`${host}/fonts/inter/Inter-Black.ttf`, { family: 'Inter', weight: 800 });
-registerFont(`${host}/fonts/inter/Inter-Regular.ttf`, { family: 'Inter', weight: 400 });
+registerFont(`./assets/fonts/inter/Inter-Black.ttf`, { family: 'Inter', weight: 800 });
+registerFont(`./assets/fonts/inter/Inter-Regular.ttf`, { family: 'Inter', weight: 400 });
 
 app.get('/', async (req, res) => {
     // Data
