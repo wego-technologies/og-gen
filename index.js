@@ -1,4 +1,4 @@
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage, registerFont } = require('canvas');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 4000;
@@ -32,6 +32,9 @@ const publicMovement = {
     }
 }
 
+// Register fonts
+registerFont(`${host}/fonts/inter/Inter-Black.ttf`, { family: 'Inter', weight: 800 });
+registerFont(`${host}/fonts/inter/Inter-Regular.ttf`, { family: 'Inter', weight: 400 });
 
 app.get('/', async (req, res) => {
     // Data
