@@ -2,7 +2,8 @@ const { createCanvas, loadImage } = require('canvas');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 4000;
-const movement = require('./api/movement');
+
+const host = 'https://beta.gatego.io';
 
 const publicMovement = {
     driver: {
@@ -76,7 +77,7 @@ app.get('/', async (req, res) => {
         context.globalAlpha = 0.25;
     }
 
-    gridImage = await loadImage('./assets/img/dot-grid.png');
+    gridImage = await loadImage(`${host}/img/dot-grid.png`);
     gridPattern = context.createPattern(gridImage, 'repeat');
     context.fillStyle = gridPattern;
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -123,7 +124,7 @@ app.get('/', async (req, res) => {
     context.fillStyle = '#00A9DE';
     context.fillRect((canvas.width / 2) - (lineWidth / 2), 0, lineWidth, canvas.height);
 
-    logoImage = await loadImage('./assets/img/logo.png');
+    logoImage = await loadImage(`${host}/img/logo.png`);
 
     logoY = lines === 1 ? startY + 260 : startY + 320;
     context.drawImage(logoImage, baseX, logoY, logoSize.width, logoSize.height);
