@@ -1,6 +1,7 @@
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const express = require('express');
 const app = express();
+const path = require('path');
 const port = process.env.PORT || 4000;
 
 const host = 'https://beta.gatego.io';
@@ -33,8 +34,8 @@ const publicMovement = {
 }
 
 // Register fonts
-registerFont(`./assets/fonts/inter/Inter-Black.ttf`, { family: 'Inter', weight: 800 });
-registerFont(`./assets/fonts/inter/Inter-Regular.ttf`, { family: 'Inter', weight: 400 });
+registerFont(path.join(__dirname, '/assets/fonts/inter/Inter-Black.ttf'), { family: 'Inter', weight: 800 });
+registerFont(path.join(__dirname, '/assets/fonts/inter/Inter-Regular.ttf'), { family: 'Inter', weight: 400 });
 
 app.get('/', async (req, res) => {
     // Data
