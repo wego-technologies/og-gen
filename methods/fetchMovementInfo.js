@@ -4,7 +4,7 @@ const axios = require('axios');
 const config = require('../config/apiConfig');
 
 const fetchMovementInfo = id => {
-    let endpoint = `${config.apiEndpoint}/public/shared/movement/${id}/`;
+    let endpoint = `${config.apiEndpoint}/api/public/shared/movement/${id}/`;
 
     return new Promise((resolve, reject) => {
         axios
@@ -13,7 +13,6 @@ const fetchMovementInfo = id => {
                 resolve(res.data);
             })
             .catch(err => {
-                console.log('error', err);
                 reject(err);
             });
     });
