@@ -147,8 +147,6 @@ app.get('/:id', async (req, res) => {
         context.fillText(lastText, baseX, startY + 300);
     }
 
-
-
     logoImage = await loadImage(`${__dirname}/assets/img/logo${darkMode ? '-dark' : ''}.png`);
 
     logoY = lines === 1 ? startY + 260 : startY + 400;
@@ -156,9 +154,13 @@ app.get('/:id', async (req, res) => {
 
     if (photoId) {
         movementImage = await loadImage(`${config.apiEndpoint}/api/public/shared/attachment/${photoId}?size=MEDIUM`);
-        movementImageRatio = movementImage.width / movementImage.height;
+        movementImageRatio = movementImage.width > movementImage.height ? movementImage.width / movementImage.height : movementImage.height / movementImage.width;
 
-        context.drawImage(movementImage, (canvas.width / 2), 0, canvas.height * movementImageRatio, canvas.height);
+        if (movementImage.width > movementImage.height) {
+            context.drawImage(movementImage, (canvas.width / 2), 0, canvas.height * movementImageRatio, canvas.height);
+        } else {
+            context.drawImage(movementImage, (canvas.width / 2), ((canvas.height - movementImage.height) / 2), canvas.width / 2, canvas.height * 2);
+        }
     }
 
     context.beginPath();
