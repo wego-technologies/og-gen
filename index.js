@@ -1,10 +1,12 @@
-const { createCanvas, loadImage, registerFont } = require('canvas');
+const { createCanvas, Image, loadImage, registerFont } = require('canvas');
 const express = require('express');
 const app = express();
 const path = require('path');
+const fetchMovementInfo = require('./methods/fetchMovementInfo');
 const port = process.env.PORT || 4000;
+const config = require('./config/apiConfig');
 
-const host = 'https://beta.gatego.io';
+require('dotenv').config();
 
 const publicMovement = {
     driver: {
@@ -37,9 +39,18 @@ const publicMovement = {
 registerFont(path.join(__dirname, '/assets/fonts/inter/Inter-Black.ttf'), { family: 'Inter', weight: 800 });
 registerFont(path.join(__dirname, '/assets/fonts/inter/Inter-Regular.ttf'), { family: 'Inter', weight: 400 });
 
-app.get('/', async (req, res) => {
+app.get('/:id', async (req, res) => {
     // Data
-    const { darkMode, direction, driverName, guest, lang, purpose, trailerNumber, truckNumber } = req.query;
+    const { darkMode, lang } = req.query;
+    const id = req.params.id;
+    const movementInfo = await fetchMovementInfo(id);
+    const direction = movementInfo?.['direction']?.toLowerCase();
+    const driverName = movementInfo?.['driver_name'];
+    const guest = movementInfo?.['truck_type'] === 'VEHICLE';
+    const purpose = movementInfo?.['purpose'];
+    const trailerStatus = movementInfo?.['status']
+    const trailerNumber = movementInfo?.['trailer_number'];
+    const truckNumber = movementInfo?.['truck_number'];
 
     // Image params
     const height = 600;
@@ -52,7 +63,8 @@ app.get('/', async (req, res) => {
         height: 75 * logoRatio,
         width: 275 * logoRatio
     }
-    const textFontSize = '32pt';
+    const labelFontSize = '26pt';
+    const textFontSize = '30pt';
     const title = publicMovement[direction]?.[lang || 'en'];
     const baseX = 100;
 
@@ -64,14 +76,25 @@ app.get('/', async (req, res) => {
     let gridPattern;
     let lastLabel;
     let lastText;
-    let lines = (trailerNumber && truckNumber || guest) ? 2 : 1;
+    let lines = guest ? 1 : 2;
     let logoImage;
     let logoY;
-    let startY = 150;
+    let movementImage;
+    let movementImageRatio;
+    let photoId;
+    let startY = 140;
     let textColor = darkMode ? '#FFF' : '#353535';
 
     if (lines === 2) {
-        startY = 110;
+        startY = 70;
+    }
+
+    if (trailerStatus === 'LOADED') {
+        photoId = movementInfo?.['left_trailer_image_shared_id'];
+    } else if (trailerStatus === 'EMPTY') {
+        photoId = movementInfo?.['inside_trailer_picture_shared_id'];
+    } else {
+        photoId = movementInfo?.['truck_picture_shared_id'];
     }
 
     context.fillStyle = fillColor;
@@ -81,7 +104,7 @@ app.get('/', async (req, res) => {
         context.globalAlpha = 0.25;
     }
 
-    gridImage = await loadImage(`${host}/img/dot-grid.png`);
+    gridImage = await loadImage(`${__dirname}/assets/img/dot-grid.png`);
     gridPattern = context.createPattern(gridImage, 'repeat');
     context.fillStyle = gridPattern;
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -90,7 +113,7 @@ app.get('/', async (req, res) => {
         context.globalAlpha = 1;
     }
 
-    context.font = '800 60pt Inter';
+    context.font = '800 54pt Inter';
     context.textAlign = 'left';
     context.textBaseline = 'top'
     context.fillStyle = textColor;
@@ -109,40 +132,47 @@ app.get('/', async (req, res) => {
     }
 
     if (firstText) {
-        context.font = `400 ${textFontSize} Inter`;
-        context.fillText(firstLabel, baseX, startY + 150);
+        context.font = `400 ${labelFontSize} Inter`;
+        context.fillText(firstLabel, baseX, startY + 120);
 
         context.font = `800 ${textFontSize} Inter`;
-        context.fillText(firstText, context.measureText(firstLabel).width + baseX, startY + 150);
+        context.fillText(firstText, baseX, startY + 170);
     }
 
     if (lastText) {
-        context.font = `400 ${textFontSize} Inter`;
-        context.fillText(lastLabel, baseX, startY + 220);
+        context.font = `400 ${labelFontSize} Inter`;
+        context.fillText(lastLabel, baseX, startY + 250);
 
         context.font = `800 ${textFontSize} Inter`;
-        context.fillText(lastText, context.measureText(lastLabel).width + baseX, startY + 220);
+        context.fillText(lastText, baseX, startY + 300);
+    }
+
+
+
+    logoImage = await loadImage(`${__dirname}/assets/img/logo${darkMode ? '-dark' : ''}.png`);
+
+    logoY = lines === 1 ? startY + 260 : startY + 400;
+    context.drawImage(logoImage, baseX, logoY, logoSize.width, logoSize.height);
+
+    if (photoId) {
+        movementImage = await loadImage(`${config.apiEndpoint}/api/public/shared/attachment/${photoId}?size=MEDIUM`);
+        movementImageRatio = movementImage.width / movementImage.height;
+
+        context.drawImage(movementImage, (canvas.width / 2), 0, canvas.height * movementImageRatio, canvas.height);
     }
 
     context.beginPath();
     context.fillStyle = '#00A9DE';
     context.fillRect((canvas.width / 2) - (lineWidth / 2), 0, lineWidth, canvas.height);
 
-    logoImage = await loadImage(`${host}/img/logo.png`);
-
-    logoY = lines === 1 ? startY + 260 : startY + 320;
-    context.drawImage(logoImage, baseX, logoY, logoSize.width, logoSize.height);
-
     buffer = canvas.toBuffer('image/png');
+
 
     res.writeHead(200, {
         'Content-Type': 'image/png',
         'Content-Length': buffer.length
     });
     res.end(buffer);
-
-
-    // res.send('Hello World!')
 })
 
 app.listen(port, () => {
