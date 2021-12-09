@@ -94,7 +94,7 @@ app.get('/:id', async (req, res) => {
     } else if (trailerStatus === 'EMPTY') {
         photoId = movementInfo?.['inside_trailer_picture_shared_id'];
     } else {
-        photoId = movementInfo?.['truck_picture_shared_id'];
+        photoId = movementInfo?.['truck_image_shared_id'];
     }
 
     context.fillStyle = fillColor;
